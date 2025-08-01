@@ -3,6 +3,11 @@ import numpy as np
 from faker import Faker
 from datetime import datetime, timedelta
 import random
+import os
+
+# Ensure directories exist
+os.makedirs('data/raw', exist_ok=True)
+os.makedirs('data/processed', exist_ok=True)
 
 fake = Faker()
 np.random.seed(42)
