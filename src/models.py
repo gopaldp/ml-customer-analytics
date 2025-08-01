@@ -1,11 +1,17 @@
 import pandas as pd
 import numpy as np
+import os
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 import joblib
+
+# Create directories if they don't exist
+os.makedirs('data/raw', exist_ok=True)
+os.makedirs('data/processed', exist_ok=True)
+os.makedirs('src', exist_ok=True)  # For saving model files
 
 class CustomerSegmentation:
     def __init__(self, n_clusters=5):

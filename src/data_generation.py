@@ -1,17 +1,16 @@
+import os
 import pandas as pd
 import numpy as np
 from faker import Faker
 from datetime import datetime, timedelta
 import random
-import os
 
-# Ensure directories exist
+# Create directories if they don't exist
 os.makedirs('data/raw', exist_ok=True)
 os.makedirs('data/processed', exist_ok=True)
 
 fake = Faker()
 np.random.seed(42)
-
 
 def generate_customers(n_customers=10000):
     """Generate customer demographic data"""
