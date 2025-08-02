@@ -1,10 +1,11 @@
-import streamlit as st
+import os
 import pandas as pd
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import sys
-import os
+import streamlit as st
 
 # Add src directory to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
@@ -28,6 +29,94 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"  # Forces sidebar to be visible
 )
+
+# **CRITICAL: Data Availability Function**
+@st.cache_data
+def ensure_data_availability():
+    """Generate sample data if no data files exist - fixes deployment issue"""
+    if not os.path.exists('data/raw/customers.csv'):
+        os.makedirs('data/raw', exist_ok=True)
+        
+        # Generate sample customers with German cities (including your location Weimar)
+        sample_customers = pd.DataFrame({
+            'customer_id': range(1, 201),
+            'name': [f'Customer_{i}' for i in range(1, 201)],
+            'age': np.random.randint(18, 80, 200),
+            'income': np.random.randint(20000, 100000, 200),
+            'city': np.random.choice(['Berlin', 'Munich', 'Hamburg', 'Weimar', 'Dresden', 'Frankfurt', 'Stuttgart'], 200),
+            'latitude': 50.979492 + np.random.normal(0, 2, 200),  # Around Weimar coordinates
+            'longitude': 11.323544 + np.random.normal(0, 3, 200),
+            'clv': np.random.uniform(500, 2000, 200),
+            'cluster': np.random.randint(0, 5, 200),
+            'total_spent': np.random.uniform(100, 3000, 200),
+            'avg_order_value': np.random.uniform(50, 500, 200),
+            'order_count': np.random.randint(1, 20, 200),
+            'monthly_sessions': np.random.randint(1, 30, 200),
+            'avg_session_duration': np.random.uniform(60, 1800, 200),
+            'pages_per_session': np.random.uniform(1, 10, 200),
+            'bounce_rate': np.random.uniform(0.1, 0.9, 200)
+        })
+        
+        sample_customers.to_csv('data/raw/customers.csv', index=False)
+        
+        # Generate sample relationships for network analysis
+        sample_relationships = pd.DataFrame({
+            'customer_1': np.random.choice(range(1, 201), 100),
+            'customer_2': np.random.choice(range(1, 201), 100),
+            'relationship_type': np.random.choice(['referral', 'family', 'colleague', 'neighbor', 'social_media'], 100),
+            'strength': np.random.uniform(0.1, 1.0, 100),
+            'created_date': pd.date_range('2023-01-01', '2024-12-31', periods=100)
+        })
+        
+        sample_relationships.to_csv('data/raw/customer_relationships.csv', index=False)
+        
+        # Generate sample processed data (what your preprocessing would create)
+        processed_customers = sample_customers.copy()
+        processed_customers['customer_segment'] = processed_customers['cluster'].map({
+            0: 'Low Value', 1: 'Medium Value', 2: 'High Value', 3: 'VIP', 4: 'Churned'
+        })
+        
+        os.makedirs('data/processed', exist_ok=True)
+        processed_customers.to_csv('data/processed/customer_features.csv', index=False)
+        processed_customers.to_csv('data/processed/customer_features_clustered.csv', index=False)
+    
+    return True
+
+# **CALL THIS FUNCTION IMMEDIATELY**
+data_ready = ensure_data_availability()
+
+# Data loading with fallback
+@st.cache_data
+def load_data():
+    """Load data with comprehensive error handling and fallbacks"""
+    customers_df = pd.DataFrame()
+    relationships_df = pd.DataFrame()
+    
+    # Try multiple data sources in order of preference
+    data_files = [
+        'data/processed/customer_features_clustered.csv',
+        'data/processed/customer_features.csv', 
+        'data/raw/customers.csv'
+    ]
+    
+    for file_path in data_files:
+        try:
+            if os.path.exists(file_path):
+                customers_df = pd.read_csv(file_path)
+                break
+        except Exception:
+            continue
+    
+    # Try to load relationships
+    try:
+        if os.path.exists('data/raw/customer_relationships.csv'):
+            relationships_df = pd.read_csv('data/raw/customer_relationships.csv')
+    except Exception:
+        pass
+    
+    return customers_df, relationships_df
+
+# Rest of your dashboard code continues here...
 
 # Clean CSS styling
 st.markdown("""
