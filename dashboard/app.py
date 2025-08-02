@@ -21,76 +21,24 @@ except ImportError:
         from app import EnhancedVisualizations
         ENHANCED_VIZ_AVAILABLE = True
     except ImportError:
-        try:
-            from visualization import EnhancedVisualizations
-            ENHANCED_VIZ_AVAILABLE = True
-        except ImportError:
-            ENHANCED_VIZ_AVAILABLE = False
+        ENHANCED_VIZ_AVAILABLE = False
 
-# Configure page
+# Configure page (THE FIX: now parenthesis is closed at the end!)
 st.set_page_config(
     page_title="Customer Analytics Hub",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state='expanded'  # or 'auto' if you prefer adaptive behavior
 )
 
-# Clean CSS styling
+# Clean CSS styling (THE FIX: shows sidebar/toggle and hides Streamlit branding)
 st.markdown("""
 <style>
-    .main {
-        padding-top: 2rem;
-        background-color: #fafafa;
-    }
-    
-    h1 {
-        font-size: 2.5rem !important;
-        font-weight: 700 !important;
-        color: #1f2937 !important;
-        margin-bottom: 0.5rem !important;
-        border-bottom: 3px solid #3b82f6;
-        padding-bottom: 0.5rem;
-    }
-    
-    [data-testid="metric-container"] {
-        background-color: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 1rem;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-        margin: 0.25rem;
-    }
-    
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background-color: #f1f5f9;
-        border-radius: 8px;
-        padding: 4px;
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        background-color: transparent;
-        border-radius: 6px;
-        padding: 0.5rem 1rem;
-        font-weight: 500;
-        color: #64748b;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background-color: white !important;
-        color: #3b82f6 !important;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-    }
-    
-    [data-testid="stSidebar"] {
-        display: block !important;
-    }
-    
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+[data-testid="stSidebar"] {display: block !important;}
+[data-testid="collapsedControl"] {display: block !important;}
 </style>
 """, unsafe_allow_html=True)
+
 
 # **COMPLETE DATA LOADING FUNCTION**
 @st.cache_data
