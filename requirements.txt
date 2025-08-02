@@ -13,4 +13,13 @@ folium>=0.15.0
 streamlit-folium>=0.15.0
 networkx>=3.2.1
 geopy>=2.4.0
-tensorflow==2.13.0
+
+# Deep Learning (for the new feature)
+tensorflow>=2.8.0
+keras>=2.8.0
+
+# Advanced explainability (optional)
+shap>=0.41.0
+
+# Market basket (optional, future)
+mlxtend>=0.23.0
