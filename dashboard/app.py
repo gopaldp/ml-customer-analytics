@@ -7,6 +7,10 @@ from plotly.subplots import make_subplots
 import sys
 import os
 from datetime import datetime, timedelta
+import tensorflow as tf
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error, r2_score
 
 # Add src directory to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
@@ -450,6 +454,66 @@ def show_city_insights(enhanced_viz, df):
     except Exception as e:
         st.error(f"City analysis error: {e}")
 
+def deep_learning_clv_tab(customers_df):
+    st.header("🤖 Deep Learning: Predict Customer Lifetime Value (CLV)")
+
+    FEATURES = [
+        'age', 'income', 'total_spent', 'avg_order_value', 'order_count',
+        'monthly_sessions', 'avg_session_duration', 'pages_per_session', 'bounce_rate'
+    ]
+    TARGET = 'clv'
+    if not all(col in customers_df.columns for col in FEATURES + [TARGET]):
+        st.warning("Not enough features in your data for deep learning CLV. Try generating or loading more data.")
+        return
+
+    sample_df = customers_df[FEATURES + [TARGET]].dropna()
+    if len(sample_df) < 50:
+        st.warning("Not enough data. Need at least 50 rows for deep learning demo.")
+        return
+
+    X = sample_df[FEATURES].values
+    y = sample_df[TARGET].values
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    tf.keras.backend.clear_session()
+    model = tf.keras.Sequential([
+        tf.keras.layers.Dense(64, activation='relu', input_shape=(X_train.shape[1],)),
+        tf.keras.layers.Dense(32, activation='relu'),
+        tf.keras.layers.Dense(1)
+    ])
+    model.compile(optimizer='adam', loss='mse')
+
+    with st.spinner("Training neural network..."):
+        hist = model.fit(X_train_scaled, y_train, epochs=20, batch_size=16, verbose=0, validation_split=0.2)
+
+    y_pred = model.predict(X_test_scaled, verbose=0).flatten()
+    mse = mean_squared_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+
+    st.subheader("Model Performance")
+    col1, col2 = st.columns(2)
+    col1.metric("Test MSE", f"{mse:,.0f}")
+    col2.metric("Test R²", f"{r2:.3f}")
+
+    # Actual vs predicted
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=y_test, y=y_pred, mode='markers', name='Prediction'))
+    fig.add_trace(go.Line(x=[y_test.min(), y_test.max()], y=[y_test.min(), y_test.max()],
+                          name='Ideal', line=dict(dash='dash', color='gray')))
+    fig.update_layout(xaxis_title="Actual CLV", yaxis_title="Predicted CLV",
+                      title="Predicted vs Actual CLV")
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Show Example Predictions
+    st.subheader("Sample Predictions")
+    pred_df = sample_df.iloc[:10].copy()
+    pred_df['Predicted CLV'] = model.predict(scaler.transform(pred_df[FEATURES].values), verbose=0)
+    st.dataframe(pred_df[[*FEATURES, TARGET, "Predicted CLV"]])
+
 def main():
     """Main dashboard application"""
     
@@ -533,11 +597,12 @@ def main():
     st.markdown("---")
     
     # Tabbed interface
-    tab1, tab2, tab3, tab4 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "🌍 **Geographic**", 
         "📊 **Analytics**", 
         "🔗 **Network**",
-        "🏙️ **Cities**"
+        "🏙️ **Cities**",
+        "🤖 **Deep Learning**"
     ])
     
     with tab1:
@@ -551,6 +616,9 @@ def main():
         
     with tab4:
         show_city_insights(enhanced_viz, filtered_customers_df)
+
+    with tab5:
+        deep_learning_clv_tab(filtered_customers_df)
     
     # Footer
     st.markdown("---")
