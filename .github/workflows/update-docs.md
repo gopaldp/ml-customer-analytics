@@ -14,11 +14,13 @@ permissions:
   pull-requests: read
 
 # The Copilot Student token only accepts Copilot's own automatic model
-# choice; every explicit model name is rejected. Pass "auto" through
-# verbatim so gh-aw does not rewrite it to a concrete model.
+# choice; every explicit model name is rejected. "auto" is a gh-aw alias
+# that the harness rewrites to a concrete model, so use "copilot/auto":
+# it is not an alias key, and the harness strips the "copilot/" prefix,
+# so Copilot CLI receives --model auto.
 engine:
   id: copilot
-  model: auto
+  model: copilot/auto
 
 sandbox:
   agent:
