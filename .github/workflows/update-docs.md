@@ -13,7 +13,11 @@ permissions:
   issues: read
   pull-requests: read
 
-engine: copilot
+# Pin the model: "auto" resolved to a model the Copilot Student plan
+# does not include. gpt-5-mini is the base model on every Copilot plan.
+engine:
+  id: copilot
+  model: gpt-5-mini
 
 network: defaults
 
