@@ -98,19 +98,6 @@ This will automatically:
   streamlit run dashboard/app.py
   ```
 
-
-Run the complete end-to-end pipeline (data generation, feature preprocessing, model training, and dashboard launch) using:
-
-```bash
-python run_project.py
-```
-
-Or run individual components:
-- **Generate Data:** `python src/data_generation.py`
-- **Preprocess Data:** `python src/data_preprocessing.py`
-- **Train Models:** `python src/models.py`
-- **Launch Dashboard:** `streamlit run dashboard/app.py`
-
 ## 📁 Project Structure
 
 ```

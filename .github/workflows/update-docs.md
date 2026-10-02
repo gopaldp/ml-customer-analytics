@@ -2,8 +2,12 @@
 description: |
   Generates documentation that is missing and updates documentation that is
   out of date, so README.md and docs/ match what the code actually does.
-  Opens one draft PR. Manual trigger only, to keep API usage under control.
-  Repo-specific context comes from .github/copilot-instructions.md.
+  Opens one draft PR. Manual trigger only (also triggered by the
+  docs-automation hub). Repo-specific context comes from
+  .github/copilot-instructions.md.
+  Copilot engine, authenticated with the COPILOT_GITHUB_TOKEN repo secret.
+  On the Copilot Student plan, automatic model choice picks a small model
+  (observed: gpt-4o-mini), so review its PRs carefully.
 
 on:
   workflow_dispatch:
@@ -13,24 +17,20 @@ permissions:
   issues: read
   pull-requests: read
 
-# Gemini CLI, authenticated with the GEMINI_API_KEY repo secret.
-# Copilot is not used: the Copilot Student token only accepts automatic
-# model choice, which fails behind the gh-aw API proxy.
-#
-# Gemini CLI is pinned to 0.43.0: newer versions exit with
-# "Invalid auth method selected" (code 41) behind the gh-aw API proxy.
-# See https://github.com/github/gh-aw/issues/58445. Unpin once fixed.
-#
-# The model is pinned to gemini-3.5-flash-lite, the only model whose free
-# tier can complete a run. With the default "auto" routing, the CLI picks
-# gemini-3.1-pro (free-tier limit 0). gemini-3.5-flash is more accurate but
-# its free tier allows only 20 requests per quota window, and a run needs
-# more (it hit 429 after 18 tool calls). With a paid API key, switch to
-# gemini-3.5-flash.
+# The Copilot Student token only accepts automatic model choice: every
+# explicit model is rejected. "copilot/auto" skips gh-aw's alias rewrite
+# and reaches Copilot CLI as "auto". AWF v0.28.23 then forwarded the literal
+# "auto" to /chat/completions (400 model_not_supported). AWF v0.28.28+
+# omits the "auto" sentinel so Copilot picks the model
+# (github/gh-aw-firewall#9195), so pin the firewall to a fixed release.
 engine:
-  id: gemini
-  version: "0.43.0"
-  model: gemini-3.5-flash-lite
+  id: copilot
+  model: copilot/auto
+
+sandbox:
+  agent:
+    version: v0.28.31
+    model-fallback: false
 
 network: defaults
 
@@ -38,9 +38,6 @@ tools:
   github:
     toolsets: [default]
   edit:
-  # gh-aw adds entries such as "safeoutputs:*" and "git checkout:*", but
-  # Gemini CLI 0.43 does not match the ":*" form, so those commands were
-  # denied. List the plain prefixes needed for the branch/commit/PR flow.
   bash: ["ls", "cat", "find", "grep", "head", "tail", "wc", "jq",
          "git ls-files", "git log", "git diff", "git status",
          "git branch", "git checkout", "git add", "git commit", "git config",
@@ -51,9 +48,9 @@ safe-outputs:
     title-prefix: "[docs] "
     labels: [documentation]
     draft: true
-  # AI threat detection only runs on copilot, claude or codex. Copilot fails
-  # with this account's token and the others need paid API keys, so skip the
-  # AI scan. Output is a docs-only draft PR that a human reviews before merge.
+  # AI threat detection is off: it has not been tested with copilot/auto on
+  # the Student plan. Output is a docs-only draft PR reviewed before merge.
+  # To try it, set engine: copilot and run once.
   threat-detection:
     engine: false
 
@@ -92,6 +89,10 @@ Apply this rule to every documentation file:
   including its structure, tone, links, badges and demo URLs. Correct anything
   the code contradicts, and add missing sections. Do not rewrite a file from
   scratch when targeted edits are enough.
+- **Never duplicate a section.** Before adding a section, check whether the
+  file already covers that topic (for example "Usage", "Running",
+  "Troubleshooting"). If it does, edit that section in place instead of
+  adding a second one.
 - **The file does not exist:** create it.
 - **Never delete** an existing documentation file. If one is obsolete, say so in
   the pull request instead.
@@ -162,7 +163,7 @@ after all documentation edits are done:
 4. `git commit -m "docs: <short summary>"`
 5. Verify the commit exists with `git log --oneline -1`. It must show your
    commit message. If it does not, fix the problem and commit again. Never
-   switch back to `main`, and never use `--allow-empty`.
+   switch back to the default branch, and never use `--allow-empty`.
 6. `git branch --show-current` and use exactly that name as `branch`.
 7. Call `create_pull_request` once with `title`, `body` and `branch`. If it is
    not available as a direct tool, run it through the shell instead:
