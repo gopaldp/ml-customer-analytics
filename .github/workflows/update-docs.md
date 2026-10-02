@@ -37,7 +37,9 @@ tools:
   github:
     toolsets: [default]
   edit:
-  bash: ["ls", "cat", "find", "grep", "head", "tail", "wc", "git ls-files", "git log", "git diff"]
+  # "safeoutputs" is listed explicitly: gh-aw adds "safeoutputs:*", but
+  # Gemini CLI 0.43 does not match the ":*" form, so the PR call was denied.
+  bash: ["ls", "cat", "find", "grep", "head", "tail", "wc", "git ls-files", "git log", "git diff", "safeoutputs"]
 
 safe-outputs:
   create-pull-request:
@@ -131,7 +133,20 @@ README.
 - If all documentation is already accurate and complete, change nothing and
   do not open a pull request.
 
+## Git and branches
+
+Do not run git commands to create branches, switch branches, stage or commit.
+They are blocked and will fail. Edit the files in place with your file tools,
+then create the pull request once: it creates the branch, the commit and the
+pull request for you. Read-only git commands (`git ls-files`, `git log`,
+`git diff`) are allowed.
+
 ## Pull request
+
+If `create_pull_request` is not available as a direct tool, use the
+`safeoutputs` command in the shell instead, for example
+`safeoutputs create_pull_request '<json>'` (run `safeoutputs --help` if
+unsure). Call it exactly once, then stop.
 
 Open one draft pull request with a short descriptive title. In the body:
 
