@@ -10,7 +10,6 @@ A comprehensive machine learning-powered customer analytics dashboard built with
 
 ### 🌍 **Geographic Analysis**
 - Interactive customer distribution maps with Folium
-- Heat maps showing customer density and value concentration
 - City-based performance analytics across German metropolitan areas
 - Geographic spread visualization centered around Weimar, Thüringen
 
@@ -24,7 +23,7 @@ A comprehensive machine learning-powered customer analytics dashboard built with
 - Customer relationship network visualization using NetworkX
 - Connection strength analysis and relationship mapping
 - Interactive network exploration with node sizing by influence
-- Relationship type breakdowns (family, referral, colleague, social media)
+- Relationship type breakdowns (family, referral, colleague, neighbor, social media)
 
 ### 🏙️ **City-Based Intelligence**
 - Performance rankings by customer count and lifetime value
@@ -33,10 +32,10 @@ A comprehensive machine learning-powered customer analytics dashboard built with
 - Regional customer intelligence and market penetration metrics
 
 ### 🤖 **Machine Learning Integration**
-- Customer Lifetime Value (CLV) prediction with 97%+ accuracy
-- K-means customer segmentation (5 distinct clusters)
+- Customer Lifetime Value (CLV) prediction with a Random Forest model (`src/models.py`, reports MSE and R²)
+- Neural-network CLV model (TensorFlow/Keras) trained in the dashboard's Deep Learning tab, with predicted-vs-actual chart
+- K-means customer segmentation (5 clusters)
 - Feature importance analysis for business insights
-- Real-time model performance monitoring
 
 ## 🛠️ Tech Stack
 
@@ -62,7 +61,7 @@ See [Setup Guide](docs/setup.md) for detailed setup instructions.
    source .venv/bin/activate
    pip install -r requirements.txt
    ```
-   > **Note:** `tensorflow` is included in `requirements.txt` and may take longer to install.
+   > **Note:** `tensorflow` is large and may take longer to install. It is required: `dashboard/app.py` imports it at startup.
 
 ## 🚀 Usage
 
