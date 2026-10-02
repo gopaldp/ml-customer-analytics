@@ -42,7 +42,7 @@ tools:
   # denied. List the plain prefixes needed for the branch/commit/PR flow.
   bash: ["ls", "cat", "find", "grep", "head", "tail", "wc", "jq",
          "git ls-files", "git log", "git diff", "git status",
-         "git branch", "git checkout", "git add", "git commit",
+         "git branch", "git checkout", "git add", "git commit", "git config",
          "safeoutputs"]
 
 safe-outputs:
@@ -142,17 +142,24 @@ README.
 The pull request is built from a local commit, so follow these steps in order
 after all documentation edits are done:
 
-1. `git checkout -b docs/update-<short-topic>`
-2. `git add` only the documentation files you created or changed.
-3. `git commit -m "docs: <short summary>"`
-4. `git branch --show-current` and use exactly that name as `branch`.
-5. Call `create_pull_request` once with `title`, `body` and `branch`. If it is
+1. Set a repository-local commit identity (run each as its own command):
+   `git config user.name "github-actions[bot]"` and
+   `git config user.email "github-actions[bot]@users.noreply.github.com"`.
+   Do not change any other git configuration.
+2. `git checkout -b docs/update-<short-topic>`
+3. `git add` only the documentation files you created or changed.
+4. `git commit -m "docs: <short summary>"`
+5. Verify the commit exists with `git log --oneline -1`. It must show your
+   commit message. If it does not, fix the problem and commit again. Never
+   switch back to `main`, and never use `--allow-empty`.
+6. `git branch --show-current` and use exactly that name as `branch`.
+7. Call `create_pull_request` once with `title`, `body` and `branch`. If it is
    not available as a direct tool, run it through the shell instead:
    `safeoutputs create_pull_request '<json>'`. To pass a long body, write it
    to `/tmp/gh-aw/agent/pr-body.md` (not into the repository) and build the
    JSON with `jq`, for example
    `jq -Rs --arg t "<title>" --arg b "<branch>" '{title: $t, branch: $b, body: .}' /tmp/gh-aw/agent/pr-body.md | safeoutputs create_pull_request .`
-6. Stop. Do not push, and do not call `create_pull_request` again.
+8. Stop. Do not push, and do not call `create_pull_request` again.
 
 Use `noop` only if no documentation change was needed.
 
