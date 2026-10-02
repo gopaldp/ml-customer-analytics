@@ -26,7 +26,7 @@ This guide covers setting up, running, and troubleshooting the `ml-customer-anal
    ```bash
    pip install -r requirements.txt
    ```
-   > **Note on TensorFlow:** `tensorflow` in `requirements.txt` is large and can be slow to install. If you are running lightweight analytical workflows without deep learning training pipelines, ensure sufficient disk space and network bandwidth or install dependencies selectively if needed.
+   > **Note on TensorFlow:** `tensorflow` in `requirements.txt` is large and can be slow to install, so allow enough disk space and time. Do not skip it: `dashboard/app.py` imports TensorFlow at startup, so the dashboard will not run without it.
 
 ## Running the Project
 
