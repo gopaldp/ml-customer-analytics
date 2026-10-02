@@ -28,15 +28,6 @@ This guide covers setting up, running, and troubleshooting the `ml-customer-anal
    ```
    > **Note on TensorFlow:** `tensorflow` in `requirements.txt` is large and can be slow to install, so allow enough disk space and time. Do not skip it: `dashboard/app.py` imports TensorFlow at startup, so the dashboard will not run without it.
 
-## Troubleshooting
-
-- **Geocoding Timeouts (`geopy`)**: `src/data_generation.py` uses `Nominatim` to lookup city coordinates. If network access is restricted or rate-limited, fallback coordinates for German metropolitan areas are used automatically.
-- **Port Conflicts**: If port `8501` is already in use, run Streamlit on an alternative port:
-  ```bash
-  streamlit run dashboard/app.py --server.port 8502
-  ```
-
-
 ## Running the Project
 
 You can run the entire end-to-end pipeline (data generation, preprocessing, model training, and dashboard launch) using the orchestration script:
