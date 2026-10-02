@@ -16,7 +16,13 @@ permissions:
 # Gemini CLI, authenticated with the GEMINI_API_KEY repo secret.
 # Copilot is not used: the Copilot Student token only accepts automatic
 # model choice, which fails behind the gh-aw API proxy.
-engine: gemini
+#
+# Gemini CLI is pinned to 0.43.0: newer versions exit with
+# "Invalid auth method selected" (code 41) behind the gh-aw API proxy.
+# See https://github.com/github/gh-aw/issues/58445. Unpin once fixed.
+engine:
+  id: gemini
+  version: "0.43.0"
 
 network: defaults
 
