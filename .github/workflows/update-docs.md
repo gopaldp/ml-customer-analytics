@@ -21,16 +21,16 @@ permissions:
 # "Invalid auth method selected" (code 41) behind the gh-aw API proxy.
 # See https://github.com/github/gh-aw/issues/58445. Unpin once fixed.
 #
-# The model is pinned to a free-tier Flash model. With the default "auto"
-# routing, the CLI picks gemini-3.1-pro (free-tier limit 0) and routes with
-# gemini-2.5-flash-lite (retired for new users).
-# gemini-3.5-flash gives more accurate docs than Flash-Lite, but its free
-# tier allows only 5 requests/min, so runs are slower. If it returns 503
-# "high demand" on every retry, use gemini-3-flash instead.
+# The model is pinned to gemini-3.5-flash-lite, the only model whose free
+# tier can complete a run. With the default "auto" routing, the CLI picks
+# gemini-3.1-pro (free-tier limit 0). gemini-3.5-flash is more accurate but
+# its free tier allows only 20 requests per quota window, and a run needs
+# more (it hit 429 after 18 tool calls). With a paid API key, switch to
+# gemini-3.5-flash.
 engine:
   id: gemini
   version: "0.43.0"
-  model: gemini-3.5-flash
+  model: gemini-3.5-flash-lite
 
 network: defaults
 
@@ -132,8 +132,18 @@ README.
 - Base every statement on the code. Do not invent features, metrics, commands,
   environment variables or file names. Where something is unclear, write
   `TODO: confirm …` instead of guessing.
-- Fix broken character encoding in existing docs (for example `ðŸ“Š` instead
-  of an emoji).
+- Do not keep or copy claims from existing docs (feature lists, accuracy
+  figures, "real-time" or similar wording) unless you find them in the code.
+  Remove them, or mark them `TODO: confirm …`.
+- Before calling a dependency optional, search for its imports. If any module
+  or app imports it, it is required.
+- Describe UIs from the code itself: list the actual tabs, pages or routes,
+  and the files and models the app really loads. Do not assume an app uses
+  an artifact just because another script produces it.
+- When listing values defined in code (types, categories, cities, clusters),
+  copy the full list or count from the code.
+- In the pull request, claim that statements are verified only if you checked
+  each one. List every `TODO` you left.
 - Use plain, concise English and GitHub-flavoured Markdown. Use relative links.
 - If all documentation is already accurate and complete, change nothing and
   do not open a pull request.
