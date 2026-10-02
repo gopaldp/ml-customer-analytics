@@ -37,9 +37,13 @@ tools:
   github:
     toolsets: [default]
   edit:
-  # "safeoutputs" is listed explicitly: gh-aw adds "safeoutputs:*", but
-  # Gemini CLI 0.43 does not match the ":*" form, so the PR call was denied.
-  bash: ["ls", "cat", "find", "grep", "head", "tail", "wc", "git ls-files", "git log", "git diff", "safeoutputs"]
+  # gh-aw adds entries such as "safeoutputs:*" and "git checkout:*", but
+  # Gemini CLI 0.43 does not match the ":*" form, so those commands were
+  # denied. List the plain prefixes needed for the branch/commit/PR flow.
+  bash: ["ls", "cat", "find", "grep", "head", "tail", "wc", "jq",
+         "git ls-files", "git log", "git diff", "git status",
+         "git branch", "git checkout", "git add", "git commit",
+         "safeoutputs"]
 
 safe-outputs:
   create-pull-request:
@@ -133,22 +137,28 @@ README.
 - If all documentation is already accurate and complete, change nothing and
   do not open a pull request.
 
-## Git and branches
+## Commit and open the pull request
 
-Do not run git commands to create branches, switch branches, stage or commit.
-They are blocked and will fail. Edit the files in place with your file tools,
-then create the pull request once: it creates the branch, the commit and the
-pull request for you. Read-only git commands (`git ls-files`, `git log`,
-`git diff`) are allowed.
+The pull request is built from a local commit, so follow these steps in order
+after all documentation edits are done:
 
-## Pull request
+1. `git checkout -b docs/update-<short-topic>`
+2. `git add` only the documentation files you created or changed.
+3. `git commit -m "docs: <short summary>"`
+4. `git branch --show-current` and use exactly that name as `branch`.
+5. Call `create_pull_request` once with `title`, `body` and `branch`. If it is
+   not available as a direct tool, run it through the shell instead:
+   `safeoutputs create_pull_request '<json>'`. To pass a long body, write it
+   to `/tmp/gh-aw/agent/pr-body.md` (not into the repository) and build the
+   JSON with `jq`, for example
+   `jq -Rs --arg t "<title>" --arg b "<branch>" '{title: $t, branch: $b, body: .}' /tmp/gh-aw/agent/pr-body.md | safeoutputs create_pull_request .`
+6. Stop. Do not push, and do not call `create_pull_request` again.
 
-If `create_pull_request` is not available as a direct tool, use the
-`safeoutputs` command in the shell instead, for example
-`safeoutputs create_pull_request '<json>'` (run `safeoutputs --help` if
-unsure). Call it exactly once, then stop.
+Use `noop` only if no documentation change was needed.
 
-Open one draft pull request with a short descriptive title. In the body:
+## Pull request content
+
+Use a short descriptive title. In the body:
 
 - list each file as **created** or **updated**, with a one-line summary;
 - list every `TODO` you left;
