@@ -38,4 +38,74 @@ A comprehensive machine learning-powered customer analytics dashboard built with
 - Feature importance analysis for business insights
 - Real-time model performance monitoring
 
+## 🛠️ Tech Stack
 
+- **Python 3.11**
+- **Data Processing & ML:** Pandas, NumPy, Scikit-Learn, TensorFlow, Keras, SHAP
+- **Visualization:** Plotly, Seaborn, Matplotlib, Folium, Streamlit-Folium
+- **Network Analysis:** NetworkX
+- **Data Generation & Utilities:** Faker, Geopy, SQLAlchemy, Joblib
+- **Frontend / Dashboard:** Streamlit
+
+## ⚙️ Prerequisites & Installation
+
+See [Setup Guide](docs/setup.md) for detailed setup instructions.
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/gopaldp/ml-customer-analytics.git
+   cd ml-customer-analytics
+   ```
+2. Create virtual environment and install dependencies:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+   > **Note:** `tensorflow` is included in `requirements.txt` and may take longer to install.
+
+## 🚀 Usage
+
+Run the complete end-to-end pipeline (data generation, feature preprocessing, model training, and dashboard launch) using:
+
+```bash
+python run_project.py
+```
+
+Or run individual components:
+- **Generate Data:** `python src/data_generation.py`
+- **Preprocess Data:** `python src/data_preprocessing.py`
+- **Train Models:** `python src/models.py`
+- **Launch Dashboard:** `streamlit run dashboard/app.py`
+
+## 📁 Project Structure
+
+```
+ml-customer-analytics/
+├── .devcontainer/         # Dev container configuration
+├── dashboard/
+│   └── app.py             # Streamlit dashboard application
+├── data/                  # Generated raw and processed datasets (ignored in git)
+├── docs/
+│   ├── architecture.md    # Architecture and data/control flow
+│   └── setup.md           # Local setup and troubleshooting
+├── notebooks/
+│   └── eda.ipynb          # Exploratory data analysis notebook
+├── src/
+│   ├── data_generation.py # Synthetic customer, transaction & network generator
+│   ├── data_preprocessing.py# Feature aggregation and CLV computation
+│   ├── models.py          # K-Means clustering and Random Forest CLV predictor
+│   └── visualization.py   # Plotly & Folium visualization helpers
+├── README.md              # Project overview and instructions
+├── requirements.txt       # Python dependencies
+└── run_project.py         # End-to-end pipeline orchestration script
+```
+
+## 🧪 Testing & Validation
+
+The project includes modular Python scripts and automated pipeline orchestration. Model performance and metrics (such as MSE and $R^2$ scores) are printed during model training (`src/models.py`).
+
+## 📚 Documentation
+
+- [Architecture & System Design](docs/architecture.md)
+- [Setup & Installation Guide](docs/setup.md)
