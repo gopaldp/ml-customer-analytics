@@ -21,13 +21,15 @@ permissions:
 # "Invalid auth method selected" (code 41) behind the gh-aw API proxy.
 # See https://github.com/github/gh-aw/issues/58445. Unpin once fixed.
 #
-# The model is pinned to a Flash model on the Gemini API free tier. With
-# the default "auto" routing, the CLI picks gemini-3.1-pro (free-tier
+# The model is pinned to a Flash-Lite model on the Gemini API free tier.
+# With the default "auto" routing, the CLI picks gemini-3.1-pro (free-tier
 # limit 0) and routes with gemini-2.5-flash-lite (retired for new users).
+# gemini-3.5-flash returned 503 "high demand" on every retry; switch back
+# to it for more detailed docs once it is reliably available.
 engine:
   id: gemini
   version: "0.43.0"
-  model: gemini-3.5-flash
+  model: gemini-3.5-flash-lite
 
 network: defaults
 
