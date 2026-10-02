@@ -61,9 +61,43 @@ See [Setup Guide](docs/setup.md) for detailed setup instructions.
    source .venv/bin/activate
    pip install -r requirements.txt
    ```
-   > **Note:** `tensorflow` is large and may take longer to install. It is required: `dashboard/app.py` imports it at startup.
+   > **Note on TensorFlow:** `tensorflow` in `requirements.txt` is large and can be slow to install, so allow enough disk space and time. Do not skip it: `dashboard/app.py` imports TensorFlow at startup, so the dashboard will not run without it.
 
 ## 🚀 Usage
+
+### Running the Project
+
+You can run the entire end-to-end pipeline (data generation, preprocessing, model training, and dashboard launch) using the orchestration script:
+
+```bash
+python run_project.py
+```
+
+This will automatically:
+1. Generate synthetic customer data, transactions, web logs, and relationship networks.
+2. Preprocess and compute feature aggregations and CLV.
+3. Train K-means clustering and Random Forest CLV prediction models.
+4. Launch the Streamlit dashboard locally at `http://localhost:8501`.
+
+### Running Components Individually
+
+- **Generate Data:**
+  ```bash
+  python src/data_generation.py
+  ```
+- **Preprocess Data:**
+  ```bash
+  python src/data_preprocessing.py
+  ```
+- **Train Models:**
+  ```bash
+  python src/models.py
+  ```
+- **Launch Dashboard Directly:**
+  ```bash
+  streamlit run dashboard/app.py
+  ```
+
 
 Run the complete end-to-end pipeline (data generation, feature preprocessing, model training, and dashboard launch) using:
 
