@@ -13,7 +13,11 @@ permissions:
   issues: read
   pull-requests: read
 
-engine: copilot
+# Pin the model: "auto" resolved to a model the Copilot Student plan
+# does not include.
+engine:
+  id: copilot
+  model: claude-sonnet-4.5
 
 network: defaults
 
