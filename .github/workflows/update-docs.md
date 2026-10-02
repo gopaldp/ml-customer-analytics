@@ -2,8 +2,8 @@
 description: |
   Generates documentation that is missing and updates documentation that is
   out of date, so README.md and docs/ match what the code actually does.
-  Opens one draft PR. Manual trigger only, to keep Copilot credit usage under
-  control. Repo-specific context comes from .github/copilot-instructions.md.
+  Opens one draft PR. Manual trigger only, to keep API usage under control.
+  Repo-specific context comes from .github/copilot-instructions.md.
 
 on:
   workflow_dispatch:
@@ -13,18 +13,10 @@ permissions:
   issues: read
   pull-requests: read
 
-# The Copilot Student token only accepts Copilot's own automatic model
-# choice; every explicit model name is rejected. "auto" is a gh-aw alias
-# that the harness rewrites to a concrete model, so use "copilot/auto":
-# it is not an alias key, and the harness strips the "copilot/" prefix,
-# so Copilot CLI receives --model auto.
-engine:
-  id: copilot
-  model: copilot/auto
-
-sandbox:
-  agent:
-    model-fallback: false
+# Gemini CLI, authenticated with the GEMINI_API_KEY repo secret.
+# Copilot is not used: the Copilot Student token only accepts automatic
+# model choice, which fails behind the gh-aw API proxy.
+engine: gemini
 
 network: defaults
 
@@ -39,6 +31,11 @@ safe-outputs:
     title-prefix: "[docs] "
     labels: [documentation]
     draft: true
+  # AI threat detection only runs on copilot, claude or codex. Copilot fails
+  # with this account's token and the others need paid API keys, so skip the
+  # AI scan. Output is a docs-only draft PR that a human reviews before merge.
+  threat-detection:
+    engine: false
 
 timeout-minutes: 20
 ---
