@@ -1,8 +1,9 @@
 ---
 description: |
-  Reviews the codebase and opens a draft PR that brings README.md and docs/
-  in line with what the code actually does. Manual trigger only, to keep
-  Copilot credit usage under control.
+  Generates documentation that is missing and updates documentation that is
+  out of date, so README.md and docs/ match what the code actually does.
+  Opens one draft PR. Manual trigger only, to keep Copilot credit usage under
+  control. Repo-specific context comes from .github/copilot-instructions.md.
 
 on:
   workflow_dispatch:
@@ -20,7 +21,7 @@ tools:
   github:
     toolsets: [default]
   edit:
-  bash: ["ls", "cat", "find", "grep", "head", "wc", "git log", "git diff", "python --version"]
+  bash: ["ls", "cat", "find", "grep", "head", "tail", "wc", "git ls-files", "git log", "git diff"]
 
 safe-outputs:
   create-pull-request:
@@ -28,49 +29,91 @@ safe-outputs:
     labels: [documentation]
     draft: true
 
-timeout-minutes: 15
+timeout-minutes: 20
 ---
 
-# Update Docs
+# Generate or Update Docs
 
-You are the documentation maintainer for `${{ github.repository }}`, a Python
-customer-analytics project: synthetic data generation, preprocessing, ML models
-(CLV prediction, K-means segmentation) and a Streamlit dashboard.
+You are the documentation maintainer for `${{ github.repository }}`. Your job is
+to make the repository's documentation complete and accurate: create what is
+missing, update what is outdated, and keep what is already correct.
 
-## Task
+## 1. Understand the repository
 
-Read the source code and bring the documentation up to date. Then open one
-draft pull request with your changes.
+- Read `.github/copilot-instructions.md` first, if it exists. It describes the
+  project and what to ignore.
+- List tracked files with `git ls-files`. Ignore virtual environments (`venv/`,
+  `.venv/`), `node_modules/`, data files, model binaries, notebook checkpoints
+  and generated output.
+- Identify the language and stack, the entry points (scripts, apps, servers,
+  CLIs), how dependencies are installed, how to run the project, how tests run,
+  and any container or deployment setup (Dockerfile, compose, CI workflows).
 
-1. Read `README.md`, `run_project.py`, `requirements.txt`, everything in `src/`
-   and `dashboard/app.py`. Skim `notebooks/eda.ipynb` only for context.
-2. Update `README.md`:
-   - Keep the accurate parts of the existing overview, feature list and live
-     demo link.
-   - Add or fix: prerequisites (Python 3.11), installation, how to run the full
-     pipeline (`python run_project.py`), how to run each step on its own, and
-     how to start only the dashboard.
-   - Add a short project-structure section that matches the real files.
-   - Fix any broken character encoding (for example mojibake emoji such as `ðŸ“Š`).
-3. Create `docs/architecture.md` describing the pipeline stages, what each module
-   in `src/` does, what files each stage reads and writes, and how the dashboard
-   consumes them.
-4. Create `docs/setup.md` covering local setup, the dev container, and common
-   problems (for example the large TensorFlow dependency).
+## 2. Inventory the existing documentation
+
+Find `README.md`, everything under `docs/`, and any other Markdown guides in
+the repository root (for example `CONTRIBUTING.md` or `*_GUIDE.md`). For each
+one, note what it covers and which statements are wrong, outdated or missing
+compared with the code.
+
+## 3. Create or update — per file
+
+Apply this rule to every documentation file:
+
+- **The file exists:** edit it in place. Keep content that is still accurate,
+  including its structure, tone, links, badges and demo URLs. Correct anything
+  the code contradicts, and add missing sections. Do not rewrite a file from
+  scratch when targeted edits are enough.
+- **The file does not exist:** create it.
+- **Never delete** an existing documentation file. If one is obsolete, say so in
+  the pull request instead.
+
+### README.md (always handled)
+
+Create it if missing, otherwise update it. It must contain:
+
+1. Project name and a short description of what it does
+2. Key features, based on the code
+3. Tech stack
+4. Prerequisites (language and runtime versions, tools)
+5. Installation
+6. Usage: how to run every entry point, with exact commands
+7. Configuration: environment variables and config files, using
+   `.env.example` or similar if present
+8. Project structure: a short tree of the important folders and files
+9. Testing, if tests exist
+10. Docker or deployment, if present
+11. Links to the files in `docs/`
+
+### docs/ (create or update as needed)
+
+- `docs/architecture.md`: components and modules, how data and control flow
+  between them, and what each main module is responsible for.
+- `docs/setup.md`: detailed local setup, dev container or Docker setup, and
+  troubleshooting for common problems.
+
+If the repository already has docs covering these topics under other names,
+update those files instead of creating duplicates, and link to them from the
+README.
 
 ## Rules
 
-- Change documentation only: `README.md` and files under `docs/`. Do not modify
-  code, notebooks, requirements or configuration.
-- Base every statement on the code. Do not invent features, metrics, commands
-  or file names. If something is unclear, write `TODO: confirm …` instead of
-  guessing.
-- Claims such as accuracy figures must come from the code or be marked `TODO`.
-- Use plain, concise English and Markdown.
-- If the documentation is already accurate and complete, make no changes and
+- Change documentation only: `README.md`, files under `docs/`, and existing
+  Markdown guides. Never modify code, notebooks, dependencies, configuration
+  or CI files.
+- Base every statement on the code. Do not invent features, metrics, commands,
+  environment variables or file names. Where something is unclear, write
+  `TODO: confirm …` instead of guessing.
+- Fix broken character encoding in existing docs (for example `ðŸ“Š` instead
+  of an emoji).
+- Use plain, concise English and GitHub-flavoured Markdown. Use relative links.
+- If all documentation is already accurate and complete, change nothing and
   do not open a pull request.
 
 ## Pull request
 
-Title it with a short summary. In the body, list each file you changed and
-every `TODO` you left, so the reviewer knows what to check.
+Open one draft pull request with a short descriptive title. In the body:
+
+- list each file as **created** or **updated**, with a one-line summary;
+- list every `TODO` you left;
+- list any docs you think are obsolete but did not delete.

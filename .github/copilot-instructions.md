@@ -11,6 +11,15 @@ Customer analytics demo in Python 3.11. The pipeline runs in this order:
 
 `run_project.py` runs all four steps. Dependencies are in `requirements.txt`.
 
+## Documentation notes
+
+- Keep the live demo link in `README.md`.
+- `notebooks/eda.ipynb` is exploratory analysis. Use it for context only.
+- The dev container (`.devcontainer/devcontainer.json`) uses Python 3.11 and
+  serves the app on port 8501.
+- `tensorflow` in `requirements.txt` is large and slow to install. Mention it
+  in setup troubleshooting.
+
 ## Conventions
 
 - Keep changes small and focused. One concern per pull request.
