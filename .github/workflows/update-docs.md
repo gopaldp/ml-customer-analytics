@@ -13,11 +13,16 @@ permissions:
   issues: read
   pull-requests: read
 
-# Pin the model: "auto" resolved to a model the Copilot Student plan
-# does not include. gpt-5-mini is the base model on every Copilot plan.
+# The Copilot Student token only accepts Copilot's own automatic model
+# choice; every explicit model name is rejected. Pass "auto" through
+# verbatim so gh-aw does not rewrite it to a concrete model.
 engine:
   id: copilot
-  model: gpt-5-mini
+  model: auto
+
+sandbox:
+  agent:
+    model-fallback: false
 
 network: defaults
 
