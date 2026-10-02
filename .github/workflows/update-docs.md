@@ -131,9 +131,18 @@ README.
 - If all documentation is already accurate and complete, change nothing and
   do not open a pull request.
 
+## Git and branches
+
+Do not run git commands to create branches, switch branches, stage or commit.
+They are blocked and will fail. Edit the files in place with your file tools,
+then call the `create_pull_request` tool once: it creates the branch, the
+commit and the pull request for you. Read-only git commands (`git ls-files`,
+`git log`, `git diff`) are allowed.
+
 ## Pull request
 
-Open one draft pull request with a short descriptive title. In the body:
+Open one draft pull request with a short descriptive title by calling the
+`create_pull_request` tool. In the body:
 
 - list each file as **created** or **updated**, with a one-line summary;
 - list every `TODO` you left;
